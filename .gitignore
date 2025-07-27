@@ -1,3 +1,13 @@
+# models
+*.tflite
+*.hef
+
+# Profiling results
+*.csv
+
+# Log files
+*.log
+
 # Prerequisites
 *.d
 
