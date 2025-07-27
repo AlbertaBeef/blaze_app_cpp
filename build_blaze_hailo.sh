@@ -1,3 +1,4 @@
+mkdir -p blaze_hailo/build
 
 g++ -DHAILO_SDK_AVAILABLE -I. -I/usr/include/opencv4 -I/usr/include/hailo -I/opt/hailo/include -I./blaze_common -I./blaze_hailo -I.. -c blaze_common/Config.cpp -o blaze_hailo/build/Config.o
 g++ -DHAILO_SDK_AVAILABLE -I. -I/usr/include/opencv4 -I/usr/include/hailo -I/opt/hailo/include -I./blaze_common -I./blaze_hailo -I.. -c blaze_common/Base.cpp -o blaze_hailo/build/Base.o
