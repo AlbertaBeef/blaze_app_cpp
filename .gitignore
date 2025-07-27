@@ -2,11 +2,18 @@
 *.tflite
 *.hef
 
+# images
+*.jpg
+*.tif
+
 # Profiling results
 *.csv
 
 # Log files
 *.log
+
+# Executables
+blaze_*/blaze_detect_live
 
 # Prerequisites
 *.d
