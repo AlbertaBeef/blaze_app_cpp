@@ -1,0 +1,4 @@
+[submodule "blaze_tflite/tflite_libs_cpp"]
+	path = blaze_tflite/tflite_libs_cpp
+	url = https://github.com/muhammedakyuzlu/tensorflow_lite_libs_cpp
+	branch = v2.12
