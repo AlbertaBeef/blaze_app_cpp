@@ -84,7 +84,7 @@ Args parse_args(int argc, char* argv[]) {
             std::cout << "  -b BLAZE,  --blaze BLAZE    Application (hand, face, pose). Default is hand                             " << std::endl;           
             std::cout << "  -m MODEL1, --model1 MODEL1  Path of blazepalm model. Default is models/palm_detection_lite.hef          " << std::endl;
             std::cout << "  -n MODEL2, --model2 MODEL2  Path of blazehandlardmark model. Default is models/hand_landmark_lite.hef   " << std::endl;
-            std::cout << "  -d,        --debug          Enable Debug mode. Default is off                                           " << std::endl;
+            std::cout << "  -v,        --verbose        Enable Verbose mode. Default is off                                         " << std::endl;
             std::cout << "  -w,        --withoutview    Disable Output viewing. Default is on                                       " << std::endl;
             std::cout << "  -z,        --profilelog     Enable Profile Log (Latency). Default is off                                " << std::endl;
             std::cout << "  -y,        --profileview    Enable Profile View (Latency). Default is off                               " << std::endl;
@@ -96,6 +96,10 @@ Args parse_args(int argc, char* argv[]) {
     return args;
 }
 
+// track bar callback
+void on_trackbar(int, void*) {
+    // DO NOTHING
+}
 
 volatile bool running = true;
 
@@ -199,13 +203,13 @@ int main(int argc, char* argv[]) {
     blaze_landmark = std::make_unique<blaze::Landmark>("blazehandlandmark", hailo_infer);
     
     // Load palm detection model
+    blaze_detector->set_debug(args.verbose); 
     blaze_detector->load_model(args.model1);
     blaze_detector->set_min_score_threshold(.75);
-    blaze_detector->set_debug(args.verbose); 
         
     // Load hand landmark model
+    blaze_landmark->set_debug(args.verbose);
     blaze_landmark->load_model(args.model2);
-    blaze_landmark->set_debug(args.verbose);    
 
     // Profiling
     std::vector<std::string> prof_title(nb_blaze_pipelines, blaze_title);
@@ -293,9 +297,18 @@ int main(int argc, char* argv[]) {
     int text_lineSize = std::max(1, int(2 * scale));
     int text_lineType = cv::LINE_AA;
 
+    double thresh_min_score, thresh_min_score_prev;
+    int thresh_min_score_percent;
     if (bViewOutput) {
         cv::namedWindow(app_main_title);
-        // TODO: trackbar logic
+        
+        // Create slider for min_score_thresh
+        thresh_min_score = blaze_detector->min_score_thresh;
+        thresh_min_score_prev = thresh_min_score;
+        thresh_min_score_percent = int(thresh_min_score*100);
+        cv::createTrackbar("threshMinScore", app_ctrl_title, NULL, 100, on_trackbar);
+        cv::setTrackbarPos("threshMinScore", app_ctrl_title,thresh_min_score_percent);
+        std::cout << "[INFO] thresh_min_score=" << thresh_min_score << std::endl;
     }
     
     int frame_count = 0;
@@ -349,6 +362,24 @@ int main(int argc, char* argv[]) {
             //
             prof_total[id] = 0.0;
             prof_fps[id] = 0.0;
+        }
+
+        // Pipelines
+        pipeline_id = 0;
+        
+        // Get trackbar values
+        if (bViewOutput) {
+            thresh_min_score_percent = cv::getTrackbarPos("threshMinScore", app_ctrl_title);
+            if (thresh_min_score_percent < 10) {
+                thresh_min_score_percent = 10;
+                cv::setTrackbarPos("threshMinScore", app_ctrl_title,thresh_min_score_percent);
+            }
+            thresh_min_score = ((double)thresh_min_score_percent)/100.0;
+            if (thresh_min_score != thresh_min_score_prev) {
+                blaze_detector->min_score_thresh = thresh_min_score;
+                thresh_min_score_prev = thresh_min_score;
+                std::cout << "[INFO] thresh_min_score=" << thresh_min_score << std::endl;
+            }
         }
                   
         // Prepare output image
