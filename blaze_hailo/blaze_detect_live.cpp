@@ -297,15 +297,13 @@ int main(int argc, char* argv[]) {
     int text_lineSize = std::max(1, int(2 * scale));
     int text_lineType = cv::LINE_AA;
 
-    double thresh_min_score, thresh_min_score_prev;
-    int thresh_min_score_percent;
+    double thresh_min_score = blaze_detector->min_score_thresh;
+    double thresh_min_score_prev = thresh_min_score;
+    int thresh_min_score_percent = int(thresh_min_score*100);
     if (bViewOutput) {
         cv::namedWindow(app_main_title);
         
         // Create slider for min_score_thresh
-        thresh_min_score = blaze_detector->min_score_thresh;
-        thresh_min_score_prev = thresh_min_score;
-        thresh_min_score_percent = int(thresh_min_score*100);
         cv::createTrackbar("threshMinScore", app_ctrl_title, NULL, 100, on_trackbar);
         cv::setTrackbarPos("threshMinScore", app_ctrl_title,thresh_min_score_percent);
         std::cout << "[INFO] thresh_min_score=" << thresh_min_score << std::endl;
