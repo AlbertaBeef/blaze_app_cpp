@@ -494,12 +494,30 @@ int main(int argc, char* argv[]) {
             auto extract_end = std::chrono::high_resolution_clock::now();
             prof_extract_roi[pipeline_id] = std::chrono::duration<double>(extract_end - extract_start).count();
             
-            // Step 6: Hand landmark detection
+            // Step 6: landmark detection
             std::vector<std::vector<double>> flags;
             std::vector<std::vector<std::vector<double>>> normalized_landmarks_vec;
             std::vector<std::vector<double>> handedness;
             //std::tie(flags, normalized_landmarks_vec) = blaze_landmark->predict(roi_imgs);
             std::tie(flags, normalized_landmarks_vec, handedness) = blaze_landmark->predict(roi_imgs);
+
+            // Process handedness (if available)
+            std::vector<std::string> handedness_results;
+            if (!handedness.empty()) {
+                for (size_t i = 0; i < handedness.size(); ++i) {
+                    std::string handedness_result;
+                    if ( bMirrorImage == false ) {
+                        handedness[i][0] = 1.0 - handedness[i][0];
+                    }
+                    if ( handedness[i][0] > 0.5 ) {
+                        handedness_result = "left";
+                    }
+                    else {
+                        handedness_result = "right";
+                    }
+                    handedness_results.push_back(handedness_result);
+                }
+            }
             
             prof_landmark_pre[pipeline_id] = blaze_landmark->get_profile_pre();
             prof_landmark_model[pipeline_id] = blaze_landmark->get_profile_model();
@@ -539,7 +557,15 @@ int main(int argc, char* argv[]) {
                     // Draw landmarks
                     if ( bShowLandmarks ) {
                         if (blaze_landmark_type == "blazehandlandmark") {
-                            blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 2, 2);
+                            if ( handedness_results.empty() ) {
+                                blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 2, 2); // green (BGR format)
+                            }
+                            else if ( handedness_results[i] == "left" ) {
+                                blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 2, 2); // green (BGR format)
+                            }
+                            else {
+                                blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS, cv::Scalar(190, 161, 0), 2, 2); // aqua (BGR format)
+                            }
                         } else if (blaze_landmark_type == "blazefacelandmark") {
                             blaze::draw_landmarks(output, landmark_points, blaze::FACE_CONNECTIONS, cv::Scalar(0,255,0), 1, 1);
                         } else if (blaze_landmark_type == "blazeposelandmark") {
@@ -588,7 +614,15 @@ int main(int argc, char* argv[]) {
             
                     // Draw landmarks according to type
                     if (blaze_landmark_type == "blazehandlandmark") {
-                        blaze::draw_landmarks(roi_disp, roi_landmarks, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 2, 2);
+                        if ( handedness_results.empty() ) {
+                            blaze::draw_landmarks(roi_disp, roi_landmarks, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 2, 2); // green (RGB format)
+                        }
+                        else if ( handedness_results[i] == "left" ) {
+                            blaze::draw_landmarks(roi_disp, roi_landmarks, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 2, 2); // green (RGB format)
+                        }
+                        else {
+                            blaze::draw_landmarks(roi_disp, roi_landmarks, blaze::HAND_CONNECTIONS, cv::Scalar(0, 161, 190), 2, 2); // aqua (RGB format)
+                        }
                     } else if (blaze_landmark_type == "blazefacelandmark") {
                         blaze::draw_landmarks(roi_disp, roi_landmarks, blaze::FACE_CONNECTIONS, cv::Scalar(0,255,0), 1, 1);
                     } else if (blaze_landmark_type == "blazeposelandmark") {
