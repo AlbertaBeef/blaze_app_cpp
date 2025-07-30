@@ -48,7 +48,7 @@ std::unique_ptr<blaze::Landmark> blaze_landmark;
 // Helpers for argument parsing
 struct Args {
     std::string input;
-    bool image = false;
+    bool testimage = false;
     std::string blaze = "hand";
     std::string model1 = ""; //"models/palm_detection_lite.hef";
     std::string model2 = ""; //"models/hand_landmark_lite.hef";
@@ -64,7 +64,7 @@ Args parse_args(int argc, char* argv[]) {
     for (int i = 1; i < argc; ++i) {
         std::string a = argv[i];
         if (a == "-i" || a == "--input") { args.input = argv[++i]; }
-        else if (a == "-I" || a == "--image") { args.image = true; }
+        else if (a == "-I" || a == "--testimage") { args.testimage = true; }
         else if (a == "-b" || a == "--blaze") { args.blaze = argv[++i]; }
         else if (a == "-m" || a == "--model1") { args.model1 = argv[++i]; }
         else if (a == "-n" || a == "--model2") { args.model2 = argv[++i]; }
@@ -75,12 +75,12 @@ Args parse_args(int argc, char* argv[]) {
         else if (a == "-f" || a == "--fps") { args.fps = false; }
         else if (a == "-h" || a == "--help") {
             std::cout << "                                                                                                          " << std::endl;
-            std::cout << "usage: blaze_detect_live [-h] [-i INPUT] [-I] [-b BLAZE] [-m MODEL1] [-n MODEL2] [-d] [-w] [-z] [-Z] [-f] " << std::endl;
+            std::cout << "usage: blaze_detect_live [-h] [-i INPUT] [-t] [-b BLAZE] [-m MODEL1] [-n MODEL2] [-d] [-w] [-z] [-y] [-f] " << std::endl;
             std::cout << "                                                                                                          " << std::endl;
             std::cout << "options:                                                                                                  " << std::endl;
             std::cout << "  -h,        --help           Show this help message and exit                                             " << std::endl;
             std::cout << "  -i INPUT,  --input INPUT    Video input device. Default is auto-detect (first usbcam)                   " << std::endl;
-            std::cout << "  -I,        --image          Use 'womand_hands.jpg' image as input. Default is usbcam                    " << std::endl;
+            std::cout << "  -I,        --testimage      Use test image as input (womand_hands.jpg). Default is usbcam               " << std::endl;
             std::cout << "  -b BLAZE,  --blaze BLAZE    Application (hand, face, pose). Default is hand                             " << std::endl;           
             std::cout << "  -m MODEL1, --model1 MODEL1  Path of blazepalm model. Default is models/palm_detection_lite.hef          " << std::endl;
             std::cout << "  -n MODEL2, --model2 MODEL2  Path of blazehandlardmark model. Default is models/hand_landmark_lite.hef   " << std::endl;
@@ -112,7 +112,6 @@ void signal_handler(int) {
     }
 }
 
-
 int main(int argc, char* argv[]) {
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
@@ -126,7 +125,7 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Command line options:" << std::endl;
     std::cout << " --input       : " << args.input << std::endl;
-    std::cout << " --image       : " << args.image << std::endl;
+    std::cout << " --testimage   : " << args.testimage << std::endl;
     std::cout << " --blaze       : " << args.blaze << std::endl;
     std::cout << " --model1      : " << args.model1 << std::endl;
     std::cout << " --model2      : " << args.model2 << std::endl;
@@ -263,6 +262,10 @@ int main(int argc, char* argv[]) {
     std::cout << "\tPress 'w' to take a photo ..." << std::endl;
     std::cout << "----------------------------------------------------------------" << std::endl;
     std::cout << "\tPress 't' to toggle between image and live video" << std::endl;
+    std::cout << "\tPress 'h' to toggle horizontal mirror on input" << std::endl;
+    std::cout << "\tPress 'a' to toggle detection overlay on/off" << std::endl;
+    std::cout << "\tPress 'b' to toggle roi overlay on/off" << std::endl;
+    std::cout << "\tPress 'l' to toggle landmarks overlay on/off" << std::endl;
     std::cout << "\tPress 'd' to toggle debug image on/off" << std::endl;
     std::cout << "\tPress 'e' to toggle scores image on/off" << std::endl;
     std::cout << "\tPress 'f' to toggle FPS display on/off" << std::endl;
@@ -271,9 +274,15 @@ int main(int argc, char* argv[]) {
     std::cout << "\tPress 'y' to toggle profiling view on/off" << std::endl;
     std::cout << "================================================================" << std::endl;
 
-    bool bStep = false, bPause = false;
+    bool bStep = false;
+    bool bPause = false;
     bool bWrite = false;
-    bool bUseImage = args.image;
+    
+    bool bUseImage = args.testimage;
+    bool bMirrorImage = false;
+    bool bShowDetection = true;
+    bool bShowExtractROI = true;
+    bool bShowLandmarks = true;
     bool bShowDebugImage = false;
     bool bShowScores = false;
     bool bShowFPS = args.fps;
@@ -299,14 +308,30 @@ int main(int argc, char* argv[]) {
 
     double thresh_min_score = blaze_detector->min_score_thresh;
     double thresh_min_score_prev = thresh_min_score;
+
+    double thresh_nms = blaze_detector->min_suppression_threshold;
+    double thresh_nms_prev = thresh_nms;
+
+    double thresh_confidence = 0.5;
+    double thresh_confidence_prev = thresh_confidence;
+    
     int thresh_min_score_percent = int(thresh_min_score*100);
+    int thresh_nms_percent = int(thresh_nms*100);
+    int thresh_confidence_percent = int(thresh_confidence*100);
     if (bViewOutput) {
         cv::namedWindow(app_main_title);
         
-        // Create slider for min_score_thresh
+        // Create slider for thresh_min_score
         cv::createTrackbar("threshMinScore", app_ctrl_title, NULL, 100, on_trackbar);
         cv::setTrackbarPos("threshMinScore", app_ctrl_title,thresh_min_score_percent);
-        std::cout << "[INFO] thresh_min_score=" << thresh_min_score << std::endl;
+
+        // Create slider for thresh_nms
+        cv::createTrackbar("threshNMS", app_ctrl_title, NULL, 100, on_trackbar);
+        cv::setTrackbarPos("threshNMS", app_ctrl_title,thresh_nms_percent);
+
+        // Create slider for thresh_confidence
+        cv::createTrackbar("threshConfidence", app_ctrl_title, NULL, 100, on_trackbar);
+        cv::setTrackbarPos("threshConfidence", app_ctrl_title,thresh_confidence_percent);
     }
     
     int frame_count = 0;
@@ -342,7 +367,12 @@ int main(int argc, char* argv[]) {
                 std::cerr << "Error: Could not read frame from the webcam." << std::endl;
                 break;
             }
-        }    
+        }
+
+        if ( bMirrorImage ) {
+            // Mirror horizontally for selfie-mode
+            cv::flip(frame, frame, 1);
+        }
         
         // Profiling
         for (int id; id < nb_blaze_pipelines; id++ ) {
@@ -367,6 +397,7 @@ int main(int argc, char* argv[]) {
         
         // Get trackbar values
         if (bViewOutput) {
+            // thresh_min_score
             thresh_min_score_percent = cv::getTrackbarPos("threshMinScore", app_ctrl_title);
             if (thresh_min_score_percent < 10) {
                 thresh_min_score_percent = 10;
@@ -377,6 +408,27 @@ int main(int argc, char* argv[]) {
                 blaze_detector->min_score_thresh = thresh_min_score;
                 thresh_min_score_prev = thresh_min_score;
                 std::cout << "[INFO] thresh_min_score=" << thresh_min_score << std::endl;
+            }
+            
+            // thresh_nms
+            thresh_nms_percent = cv::getTrackbarPos("threshNMS", app_ctrl_title);
+            if (thresh_nms_percent > 99) {
+                thresh_nms_percent = 99;
+                cv::setTrackbarPos("threshNMS", app_ctrl_title,thresh_nms_percent);
+            }
+            thresh_nms = ((double)thresh_nms_percent)/100.0;
+            if (thresh_nms != thresh_nms_prev) {
+                blaze_detector->min_suppression_threshold = thresh_nms;
+                thresh_nms_prev = thresh_nms;
+                std::cout << "[INFO] thresh_nms=" << thresh_nms << std::endl;
+            }
+            
+            // thresh_confidence
+            thresh_confidence_percent = cv::getTrackbarPos("threshConfidence", app_ctrl_title);
+            thresh_confidence = ((double)thresh_confidence_percent)/100.0;
+            if (thresh_confidence != thresh_confidence_prev) {
+                thresh_confidence_prev = thresh_confidence;
+                std::cout << "[INFO] thresh_confidence=" << thresh_confidence << std::endl;
             }
         }
                   
@@ -471,7 +523,7 @@ int main(int argc, char* argv[]) {
             // Step 9: Process landmarks
             for (size_t i = 0; i < flags.size() && i < landmarks.size(); ++i) {
                 double confidence = flags[i].empty() ? 0.0 : flags[i][0];
-                if (confidence > 0.3f) {
+                if (confidence > thresh_confidence) {
                     std::vector<cv::Point2f> landmark_points;
                     std::vector<cv::Point3f> landmark_points_3d;
                     
@@ -484,13 +536,31 @@ int main(int argc, char* argv[]) {
                         }
                     }
                     
-                    blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS);                
+                    // Draw landmarks
+                    if ( bShowLandmarks ) {
+                        if (blaze_landmark_type == "blazehandlandmark") {
+                            blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 2, 2);
+                        } else if (blaze_landmark_type == "blazefacelandmark") {
+                            blaze::draw_landmarks(output, landmark_points, blaze::FACE_CONNECTIONS, cv::Scalar(0,255,0), 1, 1);
+                        } else if (blaze_landmark_type == "blazeposelandmark") {
+                            if (landmark_points.size() > 33) {
+                                blaze::draw_landmarks(output, landmark_points, blaze::POSE_FULL_BODY_CONNECTIONS, cv::Scalar(0,255,0), 2, 2);
+                            } else {
+                                blaze::draw_landmarks(output, landmark_points, blaze::POSE_UPPER_BODY_CONNECTIONS, cv::Scalar(0,255,0), 2, 2);
+                            }
+                        }
+                    }
+                    
                 }
             }
     
             // Draw detections and ROIs
-            blaze::draw_detections(output, detections);
-            blaze::draw_roi(output, roi_boxes);
+            if ( bShowDetection ) {
+                blaze::draw_detections(output, detections);
+            }
+            if ( bShowExtractROI ) {
+                blaze::draw_roi(output, roi_boxes);
+            }
             
             auto annotate_end = std::chrono::high_resolution_clock::now();
             prof_annotate[pipeline_id] = std::chrono::duration<double>(annotate_end - annotate_start).count();
@@ -682,6 +752,26 @@ int main(int argc, char* argv[]) {
         if (key == 116) { // 't'
             bUseImage = !bUseImage;
             std::cout << "[INFO] bUseImage = " << bUseImage << std::endl;
+        }
+      
+        if (key == 104) { // 'h'
+            bMirrorImage = !bMirrorImage;
+            std::cout << "[INFO] bMirrorImage = " << bMirrorImage << std::endl;
+        }
+      
+        if (key == 97) { // 'a'
+            bShowDetection = !bShowDetection;
+            std::cout << "[INFO] bShowDetection = " << bShowDetection << std::endl;
+        }
+      
+        if (key == 98) { // 'b'
+            bShowExtractROI = !bShowExtractROI;
+            std::cout << "[INFO] bShowExtractROI = " << bShowExtractROI << std::endl;
+        }
+      
+        if (key == 108) { // 'l'
+            bShowLandmarks = !bShowLandmarks;
+            std::cout << "[INFO] bShowLandmarks = " << bShowLandmarks << std::endl;
         }
       
         if (key == 100) { // 'd'

@@ -6,6 +6,18 @@
 
 namespace blaze {
 
+// Tria color palette
+extern cv::Scalar tria_blue;
+extern cv::Scalar tria_pink;
+extern cv::Scalar tria_white;
+extern cv::Scalar tria_gray11;
+extern cv::Scalar tria_gray7;
+extern cv::Scalar tria_gray3;
+extern cv::Scalar tria_purple;
+extern cv::Scalar tria_yellow;
+extern cv::Scalar tria_aqua;
+extern cv::Scalar tria_black;
+
 // Hand landmark connections (21 points)
 extern const std::vector<std::pair<int, int>> HAND_CONNECTIONS;
 

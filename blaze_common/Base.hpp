@@ -130,6 +130,7 @@ public:
 public:
     std::vector<std::vector<double>> detection_scores;
     double min_score_thresh;
+    double min_suppression_threshold;
 
 protected:
     // Configuration parameters
@@ -143,7 +144,6 @@ protected:
     int num_coords;
     double score_clipping_thresh;
     double x_scale, y_scale, h_scale, w_scale;
-    double min_suppression_threshold;
     int num_keypoints;
     std::string detection2roi_method;
     int kp1, kp2;

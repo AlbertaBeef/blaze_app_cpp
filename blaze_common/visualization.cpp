@@ -3,7 +3,40 @@
 
 namespace blaze {
 
+//
+// Tria color palette
+//
+
+// Primary Palette (BGR format)
+cv::Scalar tria_blue   = cv::Scalar( 99,  31,   0); // TRIA BLUE
+cv::Scalar tria_pink   = cv::Scalar(163,   0, 255); // TRIA PINK
+cv::Scalar tria_white  = cv::Scalar(255, 255, 255); // WHITE
+
+// Secondary Palette (BGR format)
+cv::Scalar tria_gray11 = cv::Scalar( 90,  86,  83); // COOL GRAY 11
+cv::Scalar tria_gray7  = cv::Scalar(155, 153, 151); // COOL GRAY 7
+cv::Scalar tria_gray3  = cv::Scalar(199, 201, 200); // COOL GRAY 3
+
+// Tertiary Palette (BGR format)
+cv::Scalar tria_purple = cv::Scalar(157,  83, 107); // TRIA PURPLE
+cv::Scalar tria_yellow = cv::Scalar( 80, 201, 235); // TRIA YELLOW
+cv::Scalar tria_aqua   = cv::Scalar(190, 161,   0); // TRIA AQUA
+cv::Scalar tria_black  = cv::Scalar(  0,   0,   0); // BLACK
+
+
 // Hand landmark connections (21 points - MediaPipe format)
+//        8   12  16  20
+//        |   |   |   |
+//        7   11  15  19
+//    4   |   |   |   |
+//    |   6   10  14  18
+//    3   |   |   |   |
+//    |   5---9---13--17
+//    2    \         /
+//     \    \       /
+//      1    \     /
+//       \    \   /
+//        ------0-
 const std::vector<std::pair<int, int>> HAND_CONNECTIONS = {
     // Thumb
     {0, 1}, {1, 2}, {2, 3}, {3, 4},
@@ -68,7 +101,7 @@ void draw_detections(cv::Mat& image, const std::vector<Detection>& detections,
         
         // Draw bounding box
         //cv::rectangle(image, bbox, color, thickness);
-        cv::rectangle(image, bbox, cv::Scalar(255, 0, 0), 1);
+        cv::rectangle(image, bbox, tria_blue, 1);
         
         // Draw score if confidence is reasonable
         if (detection.score > 0.0f) {
@@ -76,13 +109,13 @@ void draw_detections(cv::Mat& image, const std::vector<Detection>& detections,
             cv::Point text_pos(bbox.x, bbox.y - 5);
             cv::putText(image, score_text, text_pos, 
                        //cv::FONT_HERSHEY_SIMPLEX, 0.5, color, 1);
-                       cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(255, 0, 0), 1);
+                       cv::FONT_HERSHEY_SIMPLEX, 0.5, tria_blue, 1);
         }
         
         // Draw keypoints if available
         if (with_keypoints == true) {
             for (const auto& kp : detection.keypoints) {
-                cv::circle(image, cv::Point2f(kp.x, kp.y), 2, cv::Scalar(0, 0, 255), 2);
+                cv::circle(image, cv::Point2f(kp.x, kp.y), 2, tria_pink, 2);
             }
         }        
     }
@@ -114,7 +147,7 @@ void draw_landmarks(cv::Mat& image, const std::vector<cv::Point2f>& landmarks,
             // Check if points are valid
             if (p1.x >= 0 && p1.y >= 0 && p1.x < image.cols && p1.y < image.rows &&
                 p2.x >= 0 && p2.y >= 0 && p2.x < image.cols && p2.y < image.rows) {
-                cv::line(image, p1, p2, cv::Scalar(0, 0, 0), thickness);
+                cv::line(image, p1, p2, tria_black, thickness);
             }
         }
     }
@@ -132,16 +165,16 @@ void draw_roi(cv::Mat& image, const std::vector<std::vector<cv::Point2f>>& roi_b
 
         // Python color mapping:
         // (0,0,0) - black, (0,255,0) - green
-        cv::line(image, p1, p2, cv::Scalar(0,0,0), 2);
-        cv::line(image, p1, p3, cv::Scalar(0,255,0), 2);
-        cv::line(image, p2, p4, cv::Scalar(0,0,0), 2);
-        cv::line(image, p3, p4, cv::Scalar(0,0,0), 2);
+        cv::line(image, p1, p2, tria_blue, 2);
+        cv::line(image, p1, p3, tria_pink, 2);
+        cv::line(image, p2, p4, tria_blue, 2);
+        cv::line(image, p3, p4, tria_blue, 2);
     }
 }
 
 cv::Mat draw_detection_scores( std::vector<std::vector<double>> detection_scores, double min_score_thresh ) {
 
-    cv::Mat plot = cv::Mat::zeros(500, 500, CV_8UC1);
+    cv::Mat plot = cv::Mat::zeros(500, 500, CV_8UC3);
     if (!detection_scores.empty() && !detection_scores[0].empty()) {
         int num_anchors = static_cast<int>(detection_scores[0].size());
         int xdiv = (num_anchors / 500) + 1;
@@ -150,14 +183,14 @@ cv::Mat draw_detection_scores( std::vector<std::vector<double>> detection_scores
             int y1 = static_cast<int>(500 - detection_scores[0][i - 1] * 500);
             int x2 = static_cast<int>(i / xdiv);
             int y2 = static_cast<int>(500 - detection_scores[0][i] * 500);
-            cv::line(plot, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(255), 1);
+            cv::line(plot, cv::Point(x1, y1), cv::Point(x2, y2), tria_pink, 1);
         }
         // Draw threshold level
         int x1 = 0;
         int x2 = 499;
         int y1 = static_cast<int>(500 - min_score_thresh * 500);
         int y2 = y1;
-        cv::line(plot, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(255), 1);
+        cv::line(plot, cv::Point(x1, y1), cv::Point(x2, y2), tria_white, 1);
     }
     
     return plot;         
