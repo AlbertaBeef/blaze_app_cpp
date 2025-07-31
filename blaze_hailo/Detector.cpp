@@ -26,7 +26,8 @@ Detector::Detector(const std::string& blaze_app, std::shared_ptr<HailoInference>
 
 void Detector::load_model(const std::string& model_path) {
     if (DEBUG) {
-        std::cout << "[Detector.load_model] Model File: " << model_path << std::endl;
+        std::cout << "[Detector.load_model] blaze_app= " << blaze_app_ << std::endl;
+        std::cout << "[Detector.load_model] model_path=" << model_path << std::endl;
     }
     
     hef_id_ = hailo_infer_->load_model(model_path);

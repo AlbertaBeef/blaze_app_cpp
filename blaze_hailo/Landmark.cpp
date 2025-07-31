@@ -18,7 +18,8 @@ Landmark::Landmark(const std::string& blaze_app, std::shared_ptr<HailoInference>
     , hef_id_(-1)
     , input_shape_(256, 256)
     , output_shape1_(1, 1)
-    , output_shape2_(1, 63)
+    , output_shape2_(21, 3)
+    , output_shape3_(1, 1)
     , profile_pre_(0.0)
     , profile_model_(0.0)
     , profile_post_(0.0) {
@@ -30,7 +31,8 @@ Landmark::Landmark(const std::string& blaze_app, std::shared_ptr<HailoInference>
 
 bool Landmark::load_model(const std::string& model_path) {
     if (DEBUG) {
-        std::cout << "[Landmark.load_model] Model File: " << model_path << std::endl;
+        std::cout << "[Landmark.load_model] blaze_app= " << blaze_app_ << std::endl;
+        std::cout << "[Landmark.load_model] model_path=" << model_path << std::endl;
     }
 
     // Load model using HailoInference
@@ -82,28 +84,39 @@ bool Landmark::load_model(const std::string& model_path) {
     }
     // Update extraction resolution to match model input
     this->resolution = resolution;
-    
+
+
     // Configure output shapes based on blaze_app type
-    if (blaze_app_ == "blazehandlandmark") {
-        if (resolution == 224) { // hand_landmark_lite
-            output_shape1_ = cv::Size(1, 1);
-            output_shape2_ = cv::Size(63, 1);
-        } else if (resolution == 256) { // hand_landmark_v0_07
-            output_shape1_ = cv::Size(1, 1);
-            output_shape2_ = cv::Size(63, 1);
+    if (blaze_app == "blazehandlandmark") {
+        if (this->resolution == 224) { // hand_landmark_lite|full
+            output_shape1 = cv::Size(1, 1);
+            output_shape2 = cv::Size(21, 3);
+            output_shape3 = cv::Size(1, 1);
+        } else if (this->resolution == 256) { // hand_landmark_v0_07
+            output_shape1 = cv::Size(1, 1);
+            output_shape2 = cv::Size(21, 3);
+            output_shape3 = cv::Size(1, 1);
         }
-    } else if (blaze_app_ == "blazefacelandmark") {
-        output_shape1_ = cv::Size(1, 1);
-        output_shape2_ = cv::Size(1404, 1);
-    } else if (blaze_app_ == "blazeposelandmark") {
-        output_shape1_ = cv::Size(1, 1);
-        output_shape2_ = cv::Size(195, 1);
+    } else if (blaze_app == "blazefacelandmark") {
+        output_shape1 = cv::Size(1, 1);
+        output_shape2 = cv::Size(468, 3);
+    } else if (blaze_app == "blazeposelandmark") {
+        if ( out2_size == 124 ) {
+            output_shape1 = cv::Size(1, 1);
+            output_shape2 = cv::Size(31, 4);
+        } else if ( out2_size == 195) {
+            output_shape1 = cv::Size(1, 1);
+            output_shape2 = cv::Size(39, 5);
+        }
     }
-    
+        
     if (DEBUG) {
         std::cout << "[Landmark.load_model] Input Shape: " << input_shape_ << std::endl;
         std::cout << "[Landmark.load_model] Output1 Shape: " << output_shape1_ << std::endl;
         std::cout << "[Landmark.load_model] Output2 Shape: " << output_shape2_ << std::endl;
+        if (blaze_app == "blazehandlandmark") {
+            std::cout << "[Landmark.load_model] Output3 Shape: " << output_shape3 << std::endl;
+        }
         std::cout << "[Landmark.load_model] Input Resolution: " << resolution << std::endl;
     }
     

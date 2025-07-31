@@ -198,8 +198,8 @@ int main(int argc, char* argv[]) {
     g_hailo_infer = std::make_shared<blaze::HailoInference>();
     auto hailo_infer = g_hailo_infer;
           
-    blaze_detector = std::make_unique<blaze::Detector>("blazepalm", hailo_infer);
-    blaze_landmark = std::make_unique<blaze::Landmark>("blazehandlandmark", hailo_infer);
+    blaze_detector = std::make_unique<blaze::Detector>(blaze_detector_type);
+    blaze_landmark = std::make_unique<blaze::Landmark>(blaze_landmark_type);
     
     // Load palm detection model
     blaze_detector->set_debug(args.verbose); 
@@ -558,21 +558,21 @@ int main(int argc, char* argv[]) {
                     if ( bShowLandmarks ) {
                         if (blaze_landmark_type == "blazehandlandmark") {
                             if ( handedness_results.empty() ) {
-                                blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 2, 4); // green (BGR format)
+                                blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 4, 2); // green (BGR format)
                             }
                             else if ( handedness_results[i] == "left" ) {
-                                blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 2, 4); // green (BGR format)
+                                blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 4, 2); // green (BGR format)
                             }
                             else {
-                                blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS, cv::Scalar(190, 161, 0), 2, 4); // aqua (BGR format)
+                                blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS, cv::Scalar(190, 161, 0), 4, 2); // aqua (BGR format)
                             }
                         } else if (blaze_landmark_type == "blazefacelandmark") {
-                            blaze::draw_landmarks(output, landmark_points, blaze::FACE_CONNECTIONS, cv::Scalar(0,255,0), 1, 1);
+                            blaze::draw_landmarks(output, landmark_points, blaze::FACE_CONNECTIONS, cv::Scalar(0,255,0), 1, 2);
                         } else if (blaze_landmark_type == "blazeposelandmark") {
                             if (landmark_points.size() > 33) {
-                                blaze::draw_landmarks(output, landmark_points, blaze::POSE_FULL_BODY_CONNECTIONS, cv::Scalar(0,255,0), 2, 4);
+                                blaze::draw_landmarks(output, landmark_points, blaze::POSE_FULL_BODY_CONNECTIONS, cv::Scalar(0,255,0), 4, 2);
                             } else {
-                                blaze::draw_landmarks(output, landmark_points, blaze::POSE_UPPER_BODY_CONNECTIONS, cv::Scalar(0,255,0), 2, 4);
+                                blaze::draw_landmarks(output, landmark_points, blaze::POSE_UPPER_BODY_CONNECTIONS, cv::Scalar(0,255,0), 4, 2);
                             }
                         }
                     }
