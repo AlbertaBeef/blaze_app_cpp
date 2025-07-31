@@ -34,7 +34,7 @@ void draw_detections(cv::Mat& image, const std::vector<Detection>& detections,
 
 void draw_landmarks(cv::Mat& image, const std::vector<cv::Point2f>& landmarks,
                    const std::vector<std::pair<int, int>>& connections,
-                   const cv::Scalar& color = cv::Scalar(0, 255, 0), int thickness = 2, int radius = 3);
+                   const cv::Scalar& color = cv::Scalar(0, 255, 0), int radius = 3, int thickness = 2);
 
 void draw_roi(cv::Mat& image, const std::vector<std::vector<cv::Point2f>>& roi_boxes);
 
