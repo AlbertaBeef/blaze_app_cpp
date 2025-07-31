@@ -558,21 +558,21 @@ int main(int argc, char* argv[]) {
                     if ( bShowLandmarks ) {
                         if (blaze_landmark_type == "blazehandlandmark") {
                             if ( handedness_results.empty() ) {
-                                blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 2, 2); // green (BGR format)
+                                blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 2, 4); // green (BGR format)
                             }
                             else if ( handedness_results[i] == "left" ) {
-                                blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 2, 2); // green (BGR format)
+                                blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 2, 4); // green (BGR format)
                             }
                             else {
-                                blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS, cv::Scalar(190, 161, 0), 2, 2); // aqua (BGR format)
+                                blaze::draw_landmarks(output, landmark_points, blaze::HAND_CONNECTIONS, cv::Scalar(190, 161, 0), 2, 4); // aqua (BGR format)
                             }
                         } else if (blaze_landmark_type == "blazefacelandmark") {
                             blaze::draw_landmarks(output, landmark_points, blaze::FACE_CONNECTIONS, cv::Scalar(0,255,0), 1, 1);
                         } else if (blaze_landmark_type == "blazeposelandmark") {
                             if (landmark_points.size() > 33) {
-                                blaze::draw_landmarks(output, landmark_points, blaze::POSE_FULL_BODY_CONNECTIONS, cv::Scalar(0,255,0), 2, 2);
+                                blaze::draw_landmarks(output, landmark_points, blaze::POSE_FULL_BODY_CONNECTIONS, cv::Scalar(0,255,0), 2, 4);
                             } else {
-                                blaze::draw_landmarks(output, landmark_points, blaze::POSE_UPPER_BODY_CONNECTIONS, cv::Scalar(0,255,0), 2, 2);
+                                blaze::draw_landmarks(output, landmark_points, blaze::POSE_UPPER_BODY_CONNECTIONS, cv::Scalar(0,255,0), 2, 4);
                             }
                         }
                     }
