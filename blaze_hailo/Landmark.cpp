@@ -87,35 +87,35 @@ bool Landmark::load_model(const std::string& model_path) {
 
 
     // Configure output shapes based on blaze_app type
-    if (blaze_app == "blazehandlandmark") {
+    if (blaze_app_ == "blazehandlandmark") {
         if (this->resolution == 224) { // hand_landmark_lite|full
-            output_shape1 = cv::Size(1, 1);
-            output_shape2 = cv::Size(21, 3);
-            output_shape3 = cv::Size(1, 1);
+            output_shape1_ = cv::Size(1, 1);
+            output_shape2_ = cv::Size(21, 3);
+            output_shape3_ = cv::Size(1, 1);
         } else if (this->resolution == 256) { // hand_landmark_v0_07
-            output_shape1 = cv::Size(1, 1);
-            output_shape2 = cv::Size(21, 3);
-            output_shape3 = cv::Size(1, 1);
+            output_shape1_ = cv::Size(1, 1);
+            output_shape2_ = cv::Size(21, 3);
+            output_shape3_ = cv::Size(1, 1);
         }
-    } else if (blaze_app == "blazefacelandmark") {
-        output_shape1 = cv::Size(1, 1);
-        output_shape2 = cv::Size(468, 3);
-    } else if (blaze_app == "blazeposelandmark") {
-        if ( out2_size == 124 ) {
-            output_shape1 = cv::Size(1, 1);
-            output_shape2 = cv::Size(31, 4);
-        } else if ( out2_size == 195) {
-            output_shape1 = cv::Size(1, 1);
-            output_shape2 = cv::Size(39, 5);
-        }
+    } else if (blaze_app_ == "blazefacelandmark") {
+        output_shape1_ = cv::Size(1, 1);
+        output_shape2_ = cv::Size(468, 3);
+    } else if (blaze_app_ == "blazeposelandmark") {
+        //if ( out2_size == 124 ) {
+            output_shape1_ = cv::Size(1, 1);
+            output_shape2_ = cv::Size(31, 4);
+        //} else if ( out2_size == 195) {
+        //    output_shape1_ = cv::Size(1, 1);
+        //    output_shape2_ = cv::Size(39, 5);
+        //}
     }
         
     if (DEBUG) {
         std::cout << "[Landmark.load_model] Input Shape: " << input_shape_ << std::endl;
         std::cout << "[Landmark.load_model] Output1 Shape: " << output_shape1_ << std::endl;
         std::cout << "[Landmark.load_model] Output2 Shape: " << output_shape2_ << std::endl;
-        if (blaze_app == "blazehandlandmark") {
-            std::cout << "[Landmark.load_model] Output3 Shape: " << output_shape3 << std::endl;
+        if (blaze_app_ == "blazehandlandmark") {
+            std::cout << "[Landmark.load_model] Output3 Shape: " << output_shape3_ << std::endl;
         }
         std::cout << "[Landmark.load_model] Input Resolution: " << resolution << std::endl;
     }

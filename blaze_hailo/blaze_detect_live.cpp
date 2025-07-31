@@ -198,8 +198,8 @@ int main(int argc, char* argv[]) {
     g_hailo_infer = std::make_shared<blaze::HailoInference>();
     auto hailo_infer = g_hailo_infer;
           
-    blaze_detector = std::make_unique<blaze::Detector>(blaze_detector_type);
-    blaze_landmark = std::make_unique<blaze::Landmark>(blaze_landmark_type);
+    blaze_detector = std::make_unique<blaze::Detector>(blaze_detector_type, hailo_infer);
+    blaze_landmark = std::make_unique<blaze::Landmark>(blaze_landmark_type, hailo_infer);
     
     // Load palm detection model
     blaze_detector->set_debug(args.verbose); 

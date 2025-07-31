@@ -57,6 +57,7 @@ private:
     cv::Size input_shape_;
     cv::Size output_shape1_;
     cv::Size output_shape2_;
+    cv::Size output_shape3_;
     
     // Profiling
     double profile_pre_;
