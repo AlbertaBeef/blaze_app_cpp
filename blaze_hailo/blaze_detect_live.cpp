@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Tria Technologies Inc.
+ * Copyright 2025 Tria Technologies Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -375,21 +375,21 @@ int main(int argc, char* argv[]) {
         }
         
         // Profiling
-        for (int id; id < nb_blaze_pipelines; id++ ) {
-            //prof_title[id] = "";
-            prof_detector_qty[id] = 0;
-            prof_resize[id] = 0.0;
-            prof_detector_pre[id] = 0.0;
-            prof_detector_model[id] = 0.0;
-            prof_detector_post[id] = 0.0;
-            prof_extract_roi[id] = 0.0;
-            prof_landmark_pre[id] = 0.0;
-            prof_landmark_model[id] = 0.0;
-            prof_landmark_post[id] = 0.0;
-            prof_annotate[id] = 0.0;
+        for (pipeline_id = 0; pipeline_id < nb_blaze_pipelines; pipeline_id++ ) {
+            //prof_title[pipeline_id] = "";
+            prof_detector_qty[pipeline_id] = 0;
+            prof_resize[pipeline_id] = 0.0;
+            prof_detector_pre[pipeline_id] = 0.0;
+            prof_detector_model[pipeline_id] = 0.0;
+            prof_detector_post[pipeline_id] = 0.0;
+            prof_extract_roi[pipeline_id] = 0.0;
+            prof_landmark_pre[pipeline_id] = 0.0;
+            prof_landmark_model[pipeline_id] = 0.0;
+            prof_landmark_post[pipeline_id] = 0.0;
+            prof_annotate[pipeline_id] = 0.0;
             //
-            prof_total[id] = 0.0;
-            prof_fps[id] = 0.0;
+            prof_total[pipeline_id] = 0.0;
+            prof_fps[pipeline_id] = 0.0;
         }
 
         // Pipelines
@@ -467,7 +467,7 @@ int main(int argc, char* argv[]) {
             cv::imshow(app_scores_title,detection_scores_chart);
         }        
         prof_detector_qty[pipeline_id] = normalized_detections.size(); 
-                
+            
         if (!normalized_detections.empty()) {
             auto extract_start = std::chrono::high_resolution_clock::now();
             
@@ -615,21 +615,21 @@ int main(int argc, char* argv[]) {
                     // Draw landmarks according to type
                     if (blaze_landmark_type == "blazehandlandmark") {
                         if ( handedness_results.empty() ) {
-                            blaze::draw_landmarks(roi_disp, roi_landmarks, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 2, 2); // green (RGB format)
+                            blaze::draw_landmarks(roi_disp, roi_landmarks, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 4, 2); // green (RGB format)
                         }
                         else if ( handedness_results[i] == "left" ) {
-                            blaze::draw_landmarks(roi_disp, roi_landmarks, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 2, 2); // green (RGB format)
+                            blaze::draw_landmarks(roi_disp, roi_landmarks, blaze::HAND_CONNECTIONS, cv::Scalar(0,255,0), 4, 2); // green (RGB format)
                         }
                         else {
-                            blaze::draw_landmarks(roi_disp, roi_landmarks, blaze::HAND_CONNECTIONS, cv::Scalar(0, 161, 190), 2, 2); // aqua (RGB format)
+                            blaze::draw_landmarks(roi_disp, roi_landmarks, blaze::HAND_CONNECTIONS, cv::Scalar(0, 161, 190), 4, 2); // aqua (RGB format)
                         }
                     } else if (blaze_landmark_type == "blazefacelandmark") {
-                        blaze::draw_landmarks(roi_disp, roi_landmarks, blaze::FACE_CONNECTIONS, cv::Scalar(0,255,0), 1, 1);
+                        blaze::draw_landmarks(roi_disp, roi_landmarks, blaze::FACE_CONNECTIONS, cv::Scalar(0,255,0), 1, 2);
                     } else if (blaze_landmark_type == "blazeposelandmark") {
                         if (roi_landmarks.size() > 33) {
-                            blaze::draw_landmarks(roi_disp, roi_landmarks, blaze::POSE_FULL_BODY_CONNECTIONS, cv::Scalar(0,255,0), 2, 2);
+                            blaze::draw_landmarks(roi_disp, roi_landmarks, blaze::POSE_FULL_BODY_CONNECTIONS, cv::Scalar(0,255,0), 4, 2);
                         } else {
-                            blaze::draw_landmarks(roi_disp, roi_landmarks, blaze::POSE_UPPER_BODY_CONNECTIONS, cv::Scalar(0,255,0), 2, 2);
+                            blaze::draw_landmarks(roi_disp, roi_landmarks, blaze::POSE_UPPER_BODY_CONNECTIONS, cv::Scalar(0,255,0), 4, 2);
                         }
                     }
             
@@ -712,7 +712,8 @@ int main(int argc, char* argv[]) {
                   std::cout << "[PROFILING] " << csv_str.str();
               }
           
-              f_profile_csv << csv_str.str();           }
+              f_profile_csv << csv_str.str();
+           }
            
            if (bProfileView) {
                std::vector<std::vector<double>> latency_values = {
