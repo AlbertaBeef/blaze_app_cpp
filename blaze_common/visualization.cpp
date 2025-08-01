@@ -249,19 +249,19 @@ const std::vector<cv::Scalar> stacked_bar_generic_colors = {
 };
 
 const std::vector<cv::Scalar> stacked_bar_latency_colors = {
-    cv::Scalar(255,   0,   0), // resize         : blue 
-    cv::Scalar(  0, 255,   0), // detector_pre   : green
-    cv::Scalar(255,   0, 255), // detector_model : magenta
-    cv::Scalar(255, 255,   0), // detector_post  : cyan
-    cv::Scalar(255,   0,   0), // extract_roi    : blue
-    cv::Scalar(  0, 255,   0), // landmark_pre   : green
-    cv::Scalar(255,   0, 255), // landmark_model : magenta
-    cv::Scalar(255, 255,   0), // landmark_post  : cyan
-    cv::Scalar(  0,   0,   0), // annotate       : black
+    tria_blue  , // resize
+    tria_yellow, // detector_pre
+    tria_pink  , // detector_model
+    tria_aqua  , // detector_post
+    tria_blue  , // extract_roi
+    tria_yellow, // landmark_pre
+    tria_pink  , // landmark_model
+    tria_aqua  , // landmark_post
+    tria_blue  , // annotate
 };
 
 const std::vector<cv::Scalar> stacked_bar_performance_colors = {
-    cv::Scalar(255,   0, 255), // pipeline_fps   : magenta
+    tria_pink  ,  // pipeline_fps
 };
 
 // Usage example inside your main loop:
@@ -331,13 +331,13 @@ cv::Mat draw_stacked_bar_chart(
 
     cv::Mat chart(chart_height, chart_width, CV_8UC3, cv::Scalar(255,255,255));
     cv::putText(chart, chart_name, cv::Point(left_margin, 36),
-                cv::FONT_HERSHEY_SIMPLEX, 0.8, cv::Scalar(40,40,40), 2, cv::LINE_AA);
+                cv::FONT_HERSHEY_SIMPLEX, 0.8, tria_gray11, 2, cv::LINE_AA);
 
     // Draw y labels (pipeline names)
     for (int i = 0; i < pipelines; ++i) {
         int y = 60 + i * (bar_height + spacing) + bar_height/2 + 5;
         cv::putText(chart, pipeline_titles[i], cv::Point(8, y),
-                    cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(40,40,40), 1, cv::LINE_AA);
+                    cv::FONT_HERSHEY_SIMPLEX, 0.4, tria_gray11, 1, cv::LINE_AA);
     }
 
     // Draw bars (stacked, normalized so max stacked bar fits in chart)
@@ -359,14 +359,14 @@ cv::Mat draw_stacked_bar_chart(
                 // Optionally draw value
                 if (val >= 0.001)
                     cv::putText(chart, cv::format("%.3f", val), cv::Point(x_local+4, y+bar_height-8),
-                                cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(255,255,255), 1, cv::LINE_AA);
+                                cv::FONT_HERSHEY_SIMPLEX, 0.4, tria_white, 1, cv::LINE_AA);
             }
             x_local += bar_w;
         }
         // draw total
         if (true) {
             cv::putText(chart, cv::format("%.3f", sum), cv::Point(x_local+4, y+bar_height-8),
-                        cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(40,40,40), 1, cv::LINE_AA);
+                        cv::FONT_HERSHEY_SIMPLEX, 0.4, tria_gray11, 1, cv::LINE_AA);
         }
     }
 
@@ -383,7 +383,7 @@ cv::Mat draw_stacked_bar_chart(
             int leg_x = legend_start_x + j * legend_item_width;
             cv::rectangle(chart, cv::Rect(leg_x, leg_y, 20, 18), component_colors[idx], cv::FILLED);
             cv::putText(chart, component_labels[idx], cv::Point(leg_x + 28, leg_y + 16),
-                        cv::FONT_HERSHEY_SIMPLEX, 0.4, cv::Scalar(40,40,40), 1, cv::LINE_AA);
+                        cv::FONT_HERSHEY_SIMPLEX, 0.4, tria_gray11, 1, cv::LINE_AA);
         }
     }
 
