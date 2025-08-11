@@ -440,7 +440,7 @@ int main(int argc, char* argv[]) {
         cv::Mat debug_img;
         if (bShowDebugImage) {
             cv::resize(resized_img, debug_img, cv::Size(blaze_landmark->resolution, blaze_landmark->resolution));
-            cv::cvtColor(debug_img, debug_img, cv::COLOR_RGB2BGR);
+            //cv::cvtColor(debug_img, debug_img, cv::COLOR_RGB2BGR);
             debug_img.convertTo(debug_img, CV_32F, 1.0 / 255.0);
 
         }
@@ -591,7 +591,7 @@ int main(int argc, char* argv[]) {
                     roi_imgs[i].copyTo(roi_disp);
             
                     //cv::resize(roi_disp, roi_disp, cv::Size(blaze_landmark->resolution, blaze_landmark->resolution));
-                    cv::cvtColor(roi_disp, roi_disp, cv::COLOR_RGB2BGR);
+                    //cv::cvtColor(roi_disp, roi_disp, cv::COLOR_RGB2BGR);
                     //roi_disp.convertTo(roi_disp, CV_32F, 1.0 / 255.0);
                                 
                     // Convert normalized_landmarks_vec[i] (vector<vector<double>>) to vector<cv::Point2f>
@@ -637,6 +637,7 @@ int main(int argc, char* argv[]) {
 
         if ( bShowDebugImage ) {
             // Show the debug window
+            cv::cvtColor(debug_img, debug_img, cv::COLOR_RGB2BGR);
             cv::imshow(app_debug_title, debug_img);
         }
                               
