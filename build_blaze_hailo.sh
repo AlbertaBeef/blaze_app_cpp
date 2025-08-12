@@ -24,5 +24,6 @@ g++ -o blaze_hailo/blaze_detect_live \
     blaze_hailo/build/visualization.o \
     blaze_hailo/build/Detector.o \
     blaze_hailo/build/Landmark.o \
+    blaze_hailo/build/HailoInference.o \
     -L. -Wl,-rpath,. -lhailort $opencv_libs -lpthread
 
