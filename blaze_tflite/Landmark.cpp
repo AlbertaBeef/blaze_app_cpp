@@ -255,7 +255,7 @@ Landmark::predict(const std::vector<cv::Mat>& input_images) {
             exit(1);
         }
         auto inference_end = std::chrono::high_resolution_clock::now();
-        profile_model = std::chrono::duration<double>(inference_end - inference_start).count();
+        profile_model += std::chrono::duration<double>(inference_end - inference_start).count();
         
         if (DEBUG) {
             std::cout << "[Landmark.predict] Inference completed, processing results..." << std::endl;
