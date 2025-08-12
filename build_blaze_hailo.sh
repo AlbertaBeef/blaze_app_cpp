@@ -13,7 +13,9 @@ g++ $cxxflags $incflags -c blaze_common/Base.cpp -o blaze_hailo/build/Base.o
 g++ $cxxflags $incflags -c blaze_hailo/HailoInference.cpp -o blaze_hailo/build/HailoInference.o
 g++ $cxxflags $incflags -c blaze_hailo/Detector.cpp -o blaze_hailo/build/Detector.o
 g++ $cxxflags $incflags -c blaze_hailo/Landmark.cpp -o blaze_hailo/build/Landmark.o
-g++ $cxxflags $incflags -c -o blaze_hailo/build/blaze_detect_live.o blaze_hailo/blaze_detect_live.cpp
+g++ $cxxflags $incflags -c blaze_hailo/blaze_detect_live.cpp -o blaze_hailo/build/blaze_detect_live.o
+
+opencv_libs="-lopencv_core -lopencv_video -lopencv_videoio -lopencv_imgcodecs -lopencv_imgproc -lopencv_highgui"
 
 g++ -o blaze_hailo/blaze_detect_live \
     blaze_hailo/build/blaze_detect_live.o \
